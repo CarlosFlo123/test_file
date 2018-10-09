@@ -12,56 +12,56 @@
 
 #include "get_next_line.h"
 
-int		ft_new_line(char **s, char **line, int fd, int ret)
+int		ft_new_line(char **file, char **line, int fd, int read_bits)
 {
 	char	*tmp;
 	int		len;
 
 	len = 0;
-	while (s[fd][len] != '\n' && s[fd][len] != '\0')
+	while (file[fd][len] != '\n' && file[fd][len] != '\0')
 		len++;
-	if (s[fd][len] == '\n')
+	if (file[fd][len] == '\n')
 	{
-		*line = ft_strsub(s[fd], 0, len);
-		tmp = ft_strdup(s[fd] + len + 1);
-		free(s[fd]);
-		s[fd] = tmp;
-		if (s[fd][0] == '\0')
-			ft_strdel(&s[fd]);
+		*line = ft_strsub(file[fd], 0, len);
+		tmp = ft_strdup(file[fd] + len + 1);
+		free(file[fd]);
+		file[fd] = tmp;
+		if (file[fd][0] == '\0')
+			ft_strdel(&file[fd]);
 	}
-	else if (s[fd][len] == '\0')
+	else if (file[fd][len] == '\0')
 	{
-		if (ret == BUFF_SIZE)
+		if (read_bits == BUFF_SIZE)
 			return (get_next_line(fd, line));
-		*line = ft_strdup(s[fd]);
-		ft_strdel(&s[fd]);
+		*line = ft_strdup(file[fd]);
+		ft_strdel(&file[fd]);
 	}
 	return (1);
 }
 
 int		get_next_line(const int fd, char **line)
 {
-	static char	*s[255];
+	static char	*file[255];
 	char		buf[BUFF_SIZE + 1];
 	char		*tmp;
-	int			ret;
+	int			read_bits;
 
 	if (fd < 0 || line == NULL)
 		return (-1);
-	while ((ret = read(fd, buf, BUFF_SIZE)) > 0)
+	while ((read_bits = read(fd, buf, BUFF_SIZE)) > 0)
 	{
-		buf[ret] = '\0';
-		if (s[fd] == NULL)
-			s[fd] = ft_strnew(1);
-		tmp = ft_strjoin(s[fd], buf);
-		free(s[fd]);
-		s[fd] = tmp;
+		buf[read_bits] = '\0';
+		if (file[fd] == NULL)
+			file[fd] = ft_strnew(1);
+		tmp = ft_strjoin(file[fd], buf);
+		free(file[fd]);
+		file[fd] = tmp;
 		if (ft_strchr(buf, '\n'))
 			break ;
 	}
-	if (ret < 0)
+	if (read_bits < 0)
 		return (-1);
-	else if (ret == 0 && (s[fd] == NULL || s[fd][0] == '\0'))
+	else if (read_bits == 0 && (file[fd] == NULL || file[fd][0] == '\0'))
 		return (0);
-	return (ft_new_line(s, line, fd, ret));
+	return (ft_new_line(file, line, fd, read_bits));
 }
